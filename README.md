@@ -3,9 +3,9 @@
 This module contains:
 
 1. Catch2 Matchers that operate on `juce::dsp::AudioBlock`
-2. A collection of C++ free functions that take an `dsp::AudioBlock<float>`.
+2. A collection of C++ free functions that take an `dsp::AudioBlock`.
    
-I'm publishing it, mainly to share how I use Catch2 with JUCE.
+I'm publishing it to share how I use Catch2 with JUCE.
 
 ## Installing
 
