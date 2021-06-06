@@ -2,14 +2,25 @@
 
 This module contains:
 
-1. Catch2 matchers that operate on `juce::dsp::AudioBlock` and rely on...
+1. [Catch2](https://github.com/catchorg/Catch2) matchers that operate on [`juce::dsp::AudioBlock`](https://docs.juce.com/master/classdsp_1_1AudioBlock.html) and rely on...
 2. ...a collection of C++ free functions that take an `dsp::dsp::AudioBlock`.
    
-I'm publishing it to share how I use Catch2 with JUCE.
+My projects rely on this module, but I wanted to publish it to share how I'm using Catch2 and JUCE.
 
 ## Catch2 Matchers
 
-The Catch2 matchers gives a solid amount of detail on the AudioBlock when the test fails, including showing [sparkline](https://github.com/sudara/melatonin_audio) versions of both the expected and actual AudioBlock. 
+The Catch2 matchers gives a solid amount of detail on AudioBlocks when a test fails. This includes displaying summary stats and [sparkline](https://github.com/sudara/melatonin_audio_sparklines) for any AudioBlock:
+
+```
+REQUIRE_THAT(actualBlock, isEqualTo (expectedBlock))
+with expansion:
+
+Block is 1 channel, 480 samples, min -0.766242, max 0.289615, 100% filled
+[0—⎻—x—⎼⎽_⎽⎼—]
+ is equal to 
+Block is 1 channel, 480 samples, min -1, max 1, 100% filled
+[0—⎻⎺‾⎺⎻—x—⎼⎽_⎽⎼—]
+```
 
 ### isEqualTo
 
@@ -57,7 +68,6 @@ It's ok if sample 256 is zero (eg, start of a sine wave), we are just making sur
 REQUIRE_THAT(myAudioBlock, isFilledBetween(64, 128));
 ```
 Returns true when sample values 64 and 128 have a non zero value for all channels.
-
 
 ### isEmpty
 
@@ -130,7 +140,8 @@ There are various FFT related functions available which rely on creating an inst
 Tip: Prefer the `magnitudeOfFrequency` helper if you know the frequency you are expecting and wish to somewhat accurately confirm magnitude. FFT is inherently messy. You'll get better results when your expected frequencies are in the middle of FFT bins. 
 
 
-However, you can still sorta sloppily 
+However, you can still sorta sloppily check for the strongest frequency:
+
 ```cpp 
 REQUIRE (FFT (myAudioBlock, 44100.0f).strongestFrequencyIs (200.f));
 ```
