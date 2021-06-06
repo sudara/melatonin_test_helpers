@@ -12,7 +12,7 @@ My projects rely on this module, but I wanted to publish it to share how I'm usi
 The Catch2 matchers gives a solid amount of detail on AudioBlocks when a test fails. This includes displaying summary stats and [sparkline](https://github.com/sudara/melatonin_audio_sparklines) for any AudioBlock:
 
 ```
-REQUIRE_THAT(actualBlock, isEqualTo (expectedBlock))
+REQUIRE_THAT(myAudioBlock, isEqualTo (someOtherBlock))
 with expansion:
 
 Block is 1 channel, 480 samples, min -0.766242, max 0.289615, 100% filled
@@ -25,7 +25,7 @@ Block is 1 channel, 480 samples, min -1, max 1, 100% filled
 ### isEqualTo
 
 ```cpp
-REQUIRE_THAT (partialBlock, isEqualTo (fullBlock));
+REQUIRE_THAT (myAudioBlock, isEqualTo (someOtherBlock));
 ```
 
 This compares each channel of the two blocks and confirms each sample is within a tolerance of `std::numeric_limits<float>::epsilon() * 100`. Don't @ me, but assuming you are doing things like multiplying a number of floats together to arrive at the end result, you probably don't want this tolerance any tighter.
@@ -33,16 +33,16 @@ This compares each channel of the two blocks and confirms each sample is within 
 However, you can loosen or tighten to your desire by passing an absolute tolerance:
 
 ```cpp
-REQUIRE_THAT (partialBlock, isEqualTo (fullBlock), 0.0005f);
+REQUIRE_THAT (myAudioBlock, isEqualTo (someOtherBlock), 0.0005f));
 ```
 
 ### isFilled
 
 ```cpp
-REQUIRE_THAT(myAudioBlock, isFilledUntil(256));
+REQUIRE_THAT(myAudioBlock, isFilled);
 ```
 
-The block is completely filled with data. No more than 1 consecutive zero is allowed. 
+Passes when the block is completely filled. No more than 1 consecutive zero is allowed. 
 
 ### isFilledUntil
 
@@ -50,7 +50,7 @@ The block is completely filled with data. No more than 1 consecutive zero is all
 REQUIRE_THAT(myAudioBlock, isFilledUntil(256));
 ```
 
-Up to and including sample 256, the block is filled and doesn't contain consecutive zeros.
+Passes when the block is filled (doesn't contain consecutive zeros) up to to and including sample 256.
 
 ### isFilledAfter
 
@@ -58,7 +58,7 @@ Up to and including sample 256, the block is filled and doesn't contain consecut
 REQUIRE_THAT(myAudioBlock, isFilledAfter(256));
 ```
 
-Starting with this sample, the block is filled. 
+Starting with this sample, the block is filled and doesn't contain consecutive zeros.
 
 It's ok if sample 256 is zero (eg, start of a sine wave), we are just making sure we don't have consecutive zeros.
 
@@ -67,7 +67,7 @@ It's ok if sample 256 is zero (eg, start of a sine wave), we are just making sur
 ```cpp
 REQUIRE_THAT(myAudioBlock, isFilledBetween(64, 128));
 ```
-Returns true when sample values 64 and 128 have a non zero value for all channels.
+Passes when sample values 64 and 128 have a non zero value for all channels.
 
 ### isEmpty
 
@@ -83,7 +83,7 @@ The block only has 0s.
 REQUIRE_THAT(myAudioBlock, isEmptyUntil(256));
 ```
 
-The block has only zeros up to and including this sample number.
+Passes when the block has only zeros up to and including this sample number.
 
 ### isEmptyAfter
 
@@ -91,14 +91,13 @@ The block has only zeros up to and including this sample number.
 REQUIRE_THAT(myAudioBlock, isEmptyAfter(256));
 ```
 
-The block is empty after this sample number.
-
+Passes when the block only contains zeros after this sample number.
 
 ## Other helpers
 
-The matchers above below all depend on free functions test helpers (prepended with `block`) which can be used seperately.
+The matchers above call out to free functions test helpers (prepended with `block`) which can be used seperately.
 
-So for example you can do use the Catch2 the matcher style:
+So for example you can do use the Catch2 matcher style:
 
 ```cpp
 REQUIRE_THAT(myAudioBlock, isFilledUntil(256));
@@ -126,12 +125,13 @@ REQUIRE (maxMagnitude (myAudioBlock) <= Catch::Approx (1.0f));
 REQUIRE (magnitudeOfFrequency (myAudioBlock, 440.f, sampleRate) < 0.005);
 ```
 
+This one is my favorite.
+
 Use this if you know the frequencies you expect to encounter in the AudioBlock. You'll need to pass it the sample rate you are using.
 
 This uses frequency correlation and compares your AudioBlock against sine and cosine probes. It's essentially the same thing as what goes on under the hood with DFT, but for exactly the frequency you specify. 
 
 This is a much more accurate way to confirm the presence of a known frequency than FFT.
-
 
 ### FFT
 
