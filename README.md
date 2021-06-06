@@ -39,7 +39,7 @@ REQUIRE_THAT (myAudioBlock, isEqualTo (someOtherBlock), 0.0005f));
 ### isFilled
 
 ```cpp
-REQUIRE_THAT(myAudioBlock, isFilled);
+REQUIRE_THAT (myAudioBlock, isFilled);
 ```
 
 Passes when the block is completely filled. No more than 1 consecutive zero is allowed. 
@@ -47,7 +47,7 @@ Passes when the block is completely filled. No more than 1 consecutive zero is a
 ### isFilledUntil
 
 ```cpp
-REQUIRE_THAT(myAudioBlock, isFilledUntil(256));
+REQUIRE_THAT (myAudioBlock, isFilledUntil(256));
 ```
 
 Passes when the block is filled (doesn't contain consecutive zeros) up to to and including sample 256.
@@ -55,7 +55,7 @@ Passes when the block is filled (doesn't contain consecutive zeros) up to to and
 ### isFilledAfter
 
 ```cpp
-REQUIRE_THAT(myAudioBlock, isFilledAfter(256));
+REQUIRE_THAT (myAudioBlock, isFilledAfter(256));
 ```
 
 Starting with this sample, the block is filled and doesn't contain consecutive zeros.
@@ -65,14 +65,14 @@ It's ok if sample 256 is zero (eg, start of a sine wave), we are just making sur
 ### isFilledBetween
 
 ```cpp
-REQUIRE_THAT(myAudioBlock, isFilledBetween(64, 128));
+REQUIRE_THAT (myAudioBlock, isFilledBetween(64, 128));
 ```
 Passes when sample values 64 and 128 have a non zero value for all channels.
 
 ### isEmpty
 
 ```cpp
-REQUIRE_THAT(myAudioBlock, isEmpty);
+REQUIRE_THAT (myAudioBlock, isEmpty);
 ```
 
 The block only has 0s.
@@ -80,7 +80,7 @@ The block only has 0s.
 ### isEmptyUntil
 
 ```cpp
-REQUIRE_THAT(myAudioBlock, isEmptyUntil(256));
+REQUIRE_THAT (myAudioBlock, isEmptyUntil(256));
 ```
 
 Passes when the block has only zeros up to and including this sample number.
@@ -88,7 +88,7 @@ Passes when the block has only zeros up to and including this sample number.
 ### isEmptyAfter
 
 ```cpp
-REQUIRE_THAT(myAudioBlock, isEmptyAfter(256));
+REQUIRE_THAT (myAudioBlock, isEmptyAfter(256));
 ```
 
 Passes when the block only contains zeros after this sample number.
@@ -100,13 +100,13 @@ The matchers above call out to free functions test helpers (prepended with `bloc
 So for example you can do use the Catch2 matcher style:
 
 ```cpp
-REQUIRE_THAT(myAudioBlock, isFilledUntil(256));
+REQUIRE_THAT (myAudioBlock, isFilledUntil(256));
 ```
 
 Or the free function style:
 
 ```cpp
-REQUIRE(blockIsFilledUntil(myAudioBlock, 256);
+REQUIRE (blockIsFilledUntil(myAudioBlock, 256);
 ```
 
 Additionally, there are some other helpers:
