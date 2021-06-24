@@ -58,9 +58,11 @@ Passes when the block is filled (doesn't contain consecutive zeros) up to to and
 REQUIRE_THAT (myAudioBlock, isFilledAfter(256));
 ```
 
-Starting with this sample, the block is filled and doesn't contain consecutive zeros.
+Passes if, starting with this sample, the block is filled and doesn't contain consecutive zeros.
 
-It's ok if sample 256 is zero (eg, start of a sine wave), we are just making sure we don't have consecutive zeros.
+If the sample specified is zero (eg, start of a sine wave) but there are no consecutive zeros, it'll pass. 
+
+Fails if the block ends at the sample specified.
 
 ### isFilledBetween
 
@@ -91,7 +93,7 @@ Passes when the block has only zeros up to and including this sample number.
 REQUIRE_THAT (myAudioBlock, isEmptyAfter(256));
 ```
 
-Passes when the block only contains zeros after this sample number.
+Passes when the block only contains zeros after this sample number, or when the block ends at this point.
 
 ## Other helpers
 

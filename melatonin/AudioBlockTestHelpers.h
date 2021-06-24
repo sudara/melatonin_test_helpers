@@ -122,6 +122,9 @@ namespace melatonin
     {
         jassert (block.getNumSamples() >= firstZeroAt);
 
+        if (block.getNumSamples() == firstZeroAt)
+            return true;
+
         auto numSamples = block.getNumSamples() - firstZeroAt;
         auto subBlock = block.getSubBlock (firstZeroAt, numSamples);
         for (size_t i = 0; i < subBlock.getNumChannels(); ++i)
@@ -147,6 +150,8 @@ namespace melatonin
     template <typename SampleType>
     static inline bool blockIsFilledUntil (const AudioBlock<SampleType>& block, int sampleNum)
     {
+        jassert (block.getNumSamples() >= sampleNum);
+
         for (int c = 0; c < (int) block.getNumChannels(); ++c)
         {
             for (int i = 0; i < sampleNum; ++i)
@@ -161,6 +166,11 @@ namespace melatonin
     template <typename SampleType>
     static inline bool blockIsFilledAfter (const AudioBlock<SampleType>& block, int sampleNum)
     {
+        jassert (block.getNumSamples() >= sampleNum);
+
+        if (block.getNumSamples() == sampleNum)
+            return false;
+
         for (int c = 0; c < (int) block.getNumChannels(); ++c)
         {
             for (int i = sampleNum; i < block.getNumSamples(); ++i)
