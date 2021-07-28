@@ -199,5 +199,6 @@ using namespace melatonin;
 
 ## Caveats
 
-1. This is just a random assortment of things I actually use for my tests.
-2. `AudioBlock` only (I don't use `AudioBuffer` much, but would be willing to look at a PR!).
+1. The matchers currently require Catch2 v3, which is currently the [devel](http://github.com/catchorg/Catch2) branch in Catch2 (and has been for a year).
+2. This is just a random assortment of things I actually use for my tests.
+3. `AudioBlock` only (I don't use `AudioBuffer` much, but would be willing to look at a PR!).
