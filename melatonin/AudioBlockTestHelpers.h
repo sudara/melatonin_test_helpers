@@ -1,10 +1,25 @@
 #pragma once
+#include "melatonin_audio_sparklines/melatonin_audio_sparklines.h"
 #include <juce_dsp/juce_dsp.h>
 
 namespace melatonin
 {
     template <typename SampleType>
     using AudioBlock = juce::dsp::AudioBlock<SampleType>;
+
+    // Ensures there's no INF, NaN or subnormals in the block
+    template <typename SampleType>
+    static inline bool validAudio (const AudioBlock<SampleType>& block)
+    {
+        for (int c = 0; c < block.getNumChannels(); ++c)
+            for (int i = 0; i < block.getNumSamples(); ++i)
+            {
+                auto value = std::fpclassify (block.getSample(c, i));
+                if (value == FP_SUBNORMAL || value == FP_INFINITE || value == FP_NAN)
+                    return false;
+            }
+        return true;
+    }
 
     // returns the number of full cycles of a waveform contained by a block
     template <typename SampleType>
@@ -260,4 +275,5 @@ namespace melatonin
         block.copyFrom (reversedBlock);
         return block;
     }
+
 }

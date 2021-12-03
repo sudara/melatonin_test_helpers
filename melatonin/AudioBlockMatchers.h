@@ -1,7 +1,7 @@
 #pragma once
 
-#include "melatonin_audio_sparklines/melatonin_audio_sparklines.h"
 #include "AudioBlockTestHelpers.h"
+#include "melatonin_audio_sparklines/melatonin_audio_sparklines.h"
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_templated.hpp>
 
@@ -21,6 +21,20 @@ namespace Catch
 
 namespace melatonin
 {
+    struct isValidAudio : Catch::Matchers::MatcherGenericBase
+    {
+        template <typename SampleType>
+        bool match (const AudioBlock<SampleType>& block) const
+        {
+            return validAudio (block);
+        }
+
+        std::string describe() const override
+        {
+            return "Block is free of NaNs, INFs and subnormals";
+        }
+    };
+
     struct isFilled : Catch::Matchers::MatcherGenericBase
     {
         template <typename SampleType>
@@ -31,9 +45,7 @@ namespace melatonin
 
         std::string describe() const override
         {
-            std::ostringstream ss;
-            ss << "Block is completely filled";
-            return ss.str();
+            return "Block is completely filled";
         }
     };
 
@@ -47,9 +59,7 @@ namespace melatonin
 
         std::string describe() const override
         {
-            std::ostringstream ss;
-            ss << "Block is completely empty";
-            return ss.str();
+            return "Block is completely empty";
         }
     };
 
