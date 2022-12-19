@@ -1,5 +1,5 @@
 #pragma once
-#include "melatonin_audio_sparklines/melatonin_audio_sparklines.h"
+#include <modules/melatonin_audio_sparklines/melatonin_audio_sparklines.h>
 #include <juce_dsp/juce_dsp.h>
 
 namespace melatonin
