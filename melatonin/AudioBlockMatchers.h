@@ -175,7 +175,6 @@ namespace melatonin
 
         bool match (AudioBlock<SampleType>& block) const
         {
-            descriptionOfOther = sparkline (other).toStdString();
             for (auto channel = 0; channel < (int) block.getNumChannels(); ++channel)
             {
                 for (auto i = 0; i < (int) block.getNumSamples(); ++i)
@@ -196,6 +195,9 @@ namespace melatonin
 
         std::string describe() const override
         {
+            if (descriptionOfOther.empty())
+                descriptionOfOther = sparkline (other).toStdString();
+
             std::ostringstream ss;
             ss << "is equal to \n"
                << descriptionOfOther << "\n";
