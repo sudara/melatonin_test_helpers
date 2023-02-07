@@ -155,9 +155,11 @@ namespace melatonin
     template <typename SampleType>
     static inline bool blockIsFilled (const AudioBlock<SampleType>& block)
     {
-        if (numberOfConsecutiveZeros (block) > 0)
+        for (int ch = 0; ch < (int) block.getNumChannels(); ++ch)
         {
-            return false;
+            auto channelBlock = block.getSingleChannelBlock (ch);
+            if (numberOfConsecutiveZeros (channelBlock) > 0)
+                return false;
         }
         return true;
     }
