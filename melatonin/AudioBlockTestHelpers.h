@@ -14,7 +14,7 @@ namespace melatonin
         for (int c = 0; c < block.getNumChannels(); ++c)
             for (int i = 0; i < block.getNumSamples(); ++i)
             {
-                auto value = std::fpclassify (block.getSample(c, i));
+                auto value = std::fpclassify (block.getSample (c, i));
                 if (value == FP_SUBNORMAL || value == FP_INFINITE || value == FP_NAN)
                     return false;
             }
@@ -54,7 +54,7 @@ namespace melatonin
     }
 
     template <typename SampleType>
-    static inline float maxMagnitude (const AudioBlock<SampleType>& block)
+    static inline SampleType maxMagnitude (const AudioBlock<SampleType>& block)
     {
         float max = 0.0;
         for (size_t c = 0; c < block.getNumChannels(); ++c)
@@ -70,13 +70,34 @@ namespace melatonin
     }
 
     template <typename SampleType>
+    static inline SampleType rms (const AudioBlock<SampleType>& block)
+    {
+        float sum = 0.0;
+        for (int c = 0; c < (int) block.getNumChannels(); ++c)
+        {
+            for (int i = 0; i < (int) block.getNumSamples(); ++i)
+            {
+                sum += (float) block.getSample (c, i) * (float) block.getSample (c, i);
+            }
+        }
+
+        return static_cast<SampleType> (std::sqrt (sum / float (block.getNumSamples() * block.getNumChannels())));
+    }
+
+    template <typename SampleType>
+    static inline SampleType rmsInDB (const AudioBlock<SampleType>& block)
+    {
+        return static_cast<SampleType> (juce::Decibels::gainToDecibels (rms (block)));
+    }
+
+    template <typename SampleType>
     static inline AudioBlock<SampleType>& fillBlockWithFunction (AudioBlock<SampleType>& block, const std::function<float (float)>& function, float frequency, float sampleRate, float gain = 1.0f)
     {
         auto angleDelta = juce::MathConstants<float>::twoPi * frequency / sampleRate;
-        for (size_t c = 0; c < block.getNumChannels(); ++c)
+        for (int c = 0; c < block.getNumChannels(); ++c)
         {
             auto currentAngle = 0.0f;
-            for (size_t i = 0; i < block.getNumSamples(); ++i)
+            for (int i = 0; i < block.getNumSamples(); ++i)
             {
                 block.setSample (c, i, gain * function (currentAngle));
                 currentAngle += angleDelta;
@@ -226,7 +247,7 @@ namespace melatonin
 
         // we can get more accurate results by assuming the block is full with the frequency
         // and only taking an integer number of cycles out of the block
-        const int lastFullCycle = (int) length - (length % (int) (sampleRate / freq));
+        const int lastFullCycle = (int) length - ((int) length % (int) (sampleRate / freq));
 
         auto sineBlock = juce::dsp::AudioBlock<SampleType> (sineData, block.getNumChannels(), length);
         auto cosineBlock = juce::dsp::AudioBlock<SampleType> (cosineData, block.getNumChannels(), length);
@@ -242,7 +263,7 @@ namespace melatonin
             sineSum += sineBlock.getSample (0, i);
             cosineSum += cosineBlock.getSample (0, i);
         }
-        return std::sqrt ((float) juce::square (sineSum / (float) lastFullCycle) + juce::square (cosineSum / (float) lastFullCycle)) * 2.0;
+        return std::sqrt ((float) juce::square (sineSum / (float) lastFullCycle) + juce::square (cosineSum / (float) lastFullCycle)) * 2.0f;
     }
 
     template <typename SampleType>
