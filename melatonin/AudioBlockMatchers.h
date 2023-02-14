@@ -1,6 +1,4 @@
 #pragma once
-#include <catch2/catch_test_macros.hpp>
-#include <catch2/matchers/catch_matchers_templated.hpp>
 
 // This teaches Catch how to convert an AudioBlock to a string
 // This allows us to print out detail about the AudioBlock on matcher failure
