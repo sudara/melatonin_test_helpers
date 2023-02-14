@@ -11,8 +11,10 @@ BEGIN_JUCE_MODULE_DECLARATION
 
 END_JUCE_MODULE_DECLARATION
 */
-#pragma once
 
+#pragma once
+#include <juce_dsp/juce_dsp.h>
+#include <melatonin_audio_sparklines/melatonin_audio_sparklines.h>
+#include "melatonin/AudioBlockTestHelpers.h"
 #include "melatonin/AudioBlockMatchers.h"
 #include "melatonin/AudioBlockFFT.h"
-#include "melatonin/AudioBlockTestHelpers.h"

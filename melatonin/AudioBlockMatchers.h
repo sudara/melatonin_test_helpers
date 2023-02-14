@@ -1,7 +1,4 @@
 #pragma once
-
-#include "AudioBlockTestHelpers.h"
-#include <modules/melatonin_audio_sparklines/melatonin_audio_sparklines.h>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_templated.hpp>
 
