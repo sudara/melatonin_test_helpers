@@ -180,9 +180,15 @@ To update these test helpers, you can:
 git submodule update --remote --merge modules/melatonin_audio_block_test_helpers
 ```
 
-If you use CMake, you can inform JUCE about the module in your `CMakeLists.txt`:
-```
+If you use CMake, inform JUCE about the module in your `CMakeLists.txt`:
+```cmake
 juce_add_module("modules/melatonin_audio_block_test_helpers")
+```
+
+And link your target against it (using `PRIVATE`, as juce recommends for modules):
+
+```cmake
+target_link_libraries(my_target PRIVATE melatonin_audio_block_test_helpers)
 ```
 
 ### Include the module and use the melatonin namespace
