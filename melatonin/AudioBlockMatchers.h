@@ -23,7 +23,7 @@ namespace Catch
     };
 
     template <>
-    struct StringMaker<const juce::AudioBuffer<float>>
+    struct StringMaker<juce::AudioBuffer<float>>
     {
         static std::string convert (juce::AudioBuffer<float> value)
         {
@@ -32,7 +32,7 @@ namespace Catch
     };
 
     template <>
-    struct StringMaker<const juce::AudioBuffer<double>>
+    struct StringMaker<juce::AudioBuffer<double>>
     {
         static std::string convert (juce::AudioBuffer<double>& value)
         {

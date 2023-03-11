@@ -43,7 +43,7 @@ namespace melatonin
     }
 
     template <typename SampleType>
-    static inline bool numberOfCycles (const juce::AudioBuffer<SampleType>& buffer)
+    static inline bool numberOfCycles (juce::AudioBuffer<SampleType>& buffer)
     {
         const auto block = AudioBlock<SampleType> (buffer);
         return numberOfCycles (block);
@@ -66,7 +66,7 @@ namespace melatonin
     }
 
     template <typename SampleType>
-    static inline bool channelsAreIdentical (const juce::AudioBuffer<SampleType>& buffer)
+    static inline bool channelsAreIdentical (juce::AudioBuffer<SampleType>& buffer)
     {
         const auto block = AudioBlock<SampleType> (buffer);
         return channelsAreIdentical (block);
@@ -89,7 +89,7 @@ namespace melatonin
     }
 
     template <typename SampleType>
-    static inline SampleType maxMagnitude (const juce::AudioBuffer<SampleType>& buffer)
+    static inline SampleType maxMagnitude (juce::AudioBuffer<SampleType>& buffer)
     {
         const auto block = AudioBlock<SampleType> (buffer);
         return maxMagnitude (block);
@@ -111,7 +111,7 @@ namespace melatonin
     }
 
     template <typename SampleType>
-    static inline SampleType rms (const juce::AudioBuffer<SampleType>& buffer)
+    static inline SampleType rms (juce::AudioBuffer<SampleType>& buffer)
     {
         const auto block = AudioBlock<SampleType> (buffer);
         return rms (block);
@@ -124,7 +124,7 @@ namespace melatonin
     }
 
     template <typename SampleType>
-    static inline SampleType rmsInDB (const juce::AudioBuffer<SampleType>& buffer)
+    static inline SampleType rmsInDB (juce::AudioBuffer<SampleType>& buffer)
     {
         const auto block = AudioBlock<SampleType> (buffer);
         return rmsInDB (block);
@@ -222,7 +222,7 @@ namespace melatonin
     }
 
     template <typename SampleType>
-    static inline bool bufferIsEmptyUntil (const juce::AudioBuffer<SampleType>& buffer, size_t numSamples)
+    static inline bool bufferIsEmptyUntil (juce::AudioBuffer<SampleType>& buffer, size_t numSamples)
     {
         const auto block = AudioBlock<SampleType> (buffer);
         return blockIsEmptyUntil (block, numSamples);
@@ -249,7 +249,7 @@ namespace melatonin
     }
 
     template <typename SampleType>
-    static inline bool bufferIsEmptyAfter (const juce::AudioBuffer<SampleType>& buffer, size_t firstZeroAt)
+    static inline bool bufferIsEmptyAfter (juce::AudioBuffer<SampleType>& buffer, size_t firstZeroAt)
     {
         const auto block = AudioBlock<SampleType> (buffer);
         return blockIsEmptyAfter (block, firstZeroAt);
@@ -258,7 +258,7 @@ namespace melatonin
     template <typename SampleType>
     static inline bool blockIsFilled (const AudioBlock<SampleType>& block)
     {
-        for (int ch = 0; ch < (int) block.getNumChannels(); ++ch)
+        for (size_t ch = 0; ch < block.getNumChannels(); ++ch)
         {
             auto channelBlock = block.getSingleChannelBlock (ch);
             if (numberOfConsecutiveZeros (channelBlock) > 0)
@@ -268,7 +268,7 @@ namespace melatonin
     }
 
     template <typename SampleType>
-    static inline bool bufferIsFilled (const juce::AudioBuffer<SampleType>& buffer)
+    static inline bool bufferIsFilled (juce::AudioBuffer<SampleType>& buffer)
     {
         const auto block = AudioBlock<SampleType> (buffer);
         return blockIsFilled (block);
@@ -291,7 +291,7 @@ namespace melatonin
     }
 
     template <typename SampleType>
-    static inline bool bufferIsFilledUntil (const juce::AudioBuffer<SampleType>& buffer, int sampleNum)
+    static inline bool bufferIsFilledUntil (juce::AudioBuffer<SampleType>& buffer, int sampleNum)
     {
         const auto block = AudioBlock<SampleType> (buffer);
         return blockIsFilledUntil (block, sampleNum);
@@ -317,7 +317,7 @@ namespace melatonin
     }
 
     template <typename SampleType>
-    static inline bool bufferIsFilledAfter (const juce::AudioBuffer<SampleType>& buffer, int sampleNum)
+    static inline bool bufferIsFilledAfter (juce::AudioBuffer<SampleType>& buffer, int sampleNum)
     {
         const auto block = AudioBlock<SampleType> (buffer);
         return blockIsFilledAfter (block, sampleNum);
@@ -339,7 +339,7 @@ namespace melatonin
     }
 
     template <typename SampleType>
-    static inline bool bufferIsFilledBetween (const juce::AudioBuffer<SampleType>& buffer, int start, int end)
+    static inline bool bufferIsFilledBetween (juce::AudioBuffer<SampleType>& buffer, int start, int end)
     {
         const auto block = AudioBlock<SampleType> (buffer);
         return blockIsFilledBetween (block, start, end);
@@ -379,7 +379,7 @@ namespace melatonin
     }
 
     template <typename SampleType>
-    static inline float magnitudeOfFrequency (const juce::AudioBuffer<SampleType>& buffer, float freq, float sampleRate)
+    static inline float magnitudeOfFrequency (juce::AudioBuffer<SampleType>& buffer, float freq, float sampleRate)
     {
         const auto block = AudioBlock<SampleType> (buffer);
         return magnitudeOfFrequency (block, freq, sampleRate);

@@ -1,11 +1,10 @@
 # Melatonin AudioBlock Test Helpers
 
-This module contains:
+This module contains two things
 
-1. [Catch2](https://github.com/catchorg/Catch2) matchers that operate on [`juce::dsp::AudioBlock`](https://docs.juce.com/master/classdsp_1_1AudioBlock.html) and rely on...
-2. ...a collection of C++ free functions that take an `dsp::dsp::AudioBlock`.
-   
-My projects rely on this module, but I wanted to publish it to share how I'm using Catch2 and JUCE.
+1. A collection of C++ free functions that take an `dsp::dsp::AudioBlock` or a `juce::AudioBuffer`
+2. [Catch2](https://github.com/catchorg/Catch2) matchers using the free functions that make it convenient to do things like `REQUIRE_THAT (result, isValidAudio())`
+
 
 ## Catch2 Matchers
 
@@ -205,6 +204,9 @@ using namespace melatonin;
 
 ## Caveats
 
-1. The matchers currently require Catch2 v3, which is currently the [devel](http://github.com/catchorg/Catch2) branch in Catch2 (and has been for a year).
-2. This is just a random assortment of things I actually use for my tests.
-3. `AudioBlock` only (I don't use `AudioBuffer` much, but would be willing to look at a PR!).
+1. The matchers are the "new style" and require Catch2 v3.x.
+2. This is just a random assortment of things I actually use for my tests! I'm open to more things being added, submit a PR!
+
+## Acknowledgements
+
+* Thanks to @chrhaase for improving module compatibility and performance. 
