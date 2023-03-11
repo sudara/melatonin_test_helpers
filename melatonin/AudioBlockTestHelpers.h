@@ -9,14 +9,21 @@ namespace melatonin
     template <typename SampleType>
     static inline bool validAudio (const AudioBlock<SampleType>& block)
     {
-        for (int c = 0; c < block.getNumChannels(); ++c)
-            for (int i = 0; i < block.getNumSamples(); ++i)
+        for (size_t c = 0; c < block.getNumChannels(); ++c)
+            for (size_t i = 0; i < block.getNumSamples(); ++i)
             {
-                auto value = std::fpclassify (block.getSample (c, i));
+                auto value = std::fpclassify (block.getSample ((int) c, (int) i));
                 if (value == FP_SUBNORMAL || value == FP_INFINITE || value == FP_NAN)
                     return false;
             }
         return true;
+    }
+
+    template <typename SampleType>
+    static inline bool validAudio (juce::AudioBuffer<SampleType>& buffer)
+    {
+        auto block = AudioBlock<SampleType> (buffer);
+        return validAudio (block);
     }
 
     // returns the number of full cycles of a waveform contained by a block
@@ -36,19 +43,33 @@ namespace melatonin
     }
 
     template <typename SampleType>
+    static inline bool numberOfCycles (const juce::AudioBuffer<SampleType>& buffer)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return numberOfCycles (block);
+    }
+
+    template <typename SampleType>
     static inline bool channelsAreIdentical (const AudioBlock<SampleType>& block)
     {
         jassert (block.getNumChannels() > 1);
         for (size_t i = 0; i < block.getNumSamples(); ++i)
         {
-            float channelZeroValue = block.getSample (0, i);
-            for (int c = 0; c < block.getNumChannels(); ++c)
+            float channelZeroValue = block.getSample (0, (int) i);
+            for (size_t c = 0; c < block.getNumChannels(); ++c)
             {
-                if (block.getSample (c, i) != channelZeroValue)
+                if (block.getSample ((int) c, (int) i) != channelZeroValue)
                     return false;
             }
         }
         return true;
+    }
+
+    template <typename SampleType>
+    static inline bool channelsAreIdentical (const juce::AudioBuffer<SampleType>& buffer)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return channelsAreIdentical (block);
     }
 
     template <typename SampleType>
@@ -68,6 +89,13 @@ namespace melatonin
     }
 
     template <typename SampleType>
+    static inline SampleType maxMagnitude (const juce::AudioBuffer<SampleType>& buffer)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return maxMagnitude (block);
+    }
+
+    template <typename SampleType>
     static inline SampleType rms (const AudioBlock<SampleType>& block)
     {
         float sum = 0.0;
@@ -83,27 +111,48 @@ namespace melatonin
     }
 
     template <typename SampleType>
+    static inline SampleType rms (const juce::AudioBuffer<SampleType>& buffer)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return rms (block);
+    }
+
+    template <typename SampleType>
     static inline SampleType rmsInDB (const AudioBlock<SampleType>& block)
     {
         return static_cast<SampleType> (juce::Decibels::gainToDecibels (rms (block)));
     }
 
     template <typename SampleType>
+    static inline SampleType rmsInDB (const juce::AudioBuffer<SampleType>& buffer)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return rmsInDB (block);
+    }
+
+    template <typename SampleType>
     static inline AudioBlock<SampleType>& fillBlockWithFunction (AudioBlock<SampleType>& block, const std::function<float (float)>& function, float frequency, float sampleRate, float gain = 1.0f)
     {
         auto angleDelta = juce::MathConstants<float>::twoPi * frequency / sampleRate;
-        for (int c = 0; c < block.getNumChannels(); ++c)
+        for (size_t c = 0; c < block.getNumChannels(); ++c)
         {
             auto currentAngle = 0.0f;
-            for (int i = 0; i < block.getNumSamples(); ++i)
+            for (size_t i = 0; i < block.getNumSamples(); ++i)
             {
-                block.setSample (c, i, gain * function (currentAngle));
+                block.setSample ((int) c, (int) i, gain * function (currentAngle));
                 currentAngle += angleDelta;
                 if (currentAngle >= juce::MathConstants<float>::pi)
                     currentAngle -= juce::MathConstants<float>::twoPi;
             }
         }
         return block;
+    }
+
+    template <typename SampleType>
+    static inline juce::AudioBuffer<SampleType>& fillBufferWithFunction (juce::AudioBuffer<SampleType>& buffer, const std::function<float (float)>& function, float frequency, float sampleRate, float gain = 1.0f)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return fillBlockWithFunction (block, function, frequency, sampleRate, gain);
     }
 
     // assumes mono for now
@@ -114,12 +163,26 @@ namespace melatonin
             block, [] (float angle) { return juce::dsp::FastMathApproximations::sin (angle); }, frequency, sampleRate, gain);
     }
 
+    template <typename SampleType>
+    static inline juce::AudioBuffer<SampleType>& fillBufferWithSine (juce::AudioBuffer<SampleType>& buffer, float frequency, float sampleRate, float gain = 1.0f)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return fillWithSine (block, frequency, sampleRate, gain);
+    }
+
     // assumes mono for now
     template <typename SampleType>
     static inline AudioBlock<SampleType>& fillWithCosine (AudioBlock<SampleType>& block, float frequency, float sampleRate, float gain = 1.0f)
     {
         return fillBlockWithFunction (
             block, [] (float angle) { return juce::dsp::FastMathApproximations::cos (angle); }, frequency, sampleRate, gain);
+    }
+
+    template <typename SampleType>
+    static inline juce::AudioBuffer<SampleType>& fillBufferWithCosine (juce::AudioBuffer<SampleType>& buffer, float frequency, float sampleRate, float gain = 1.0f)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return fillWithCosine (block, frequency, sampleRate, gain);
     }
 
     // all zeros
@@ -137,6 +200,13 @@ namespace melatonin
     }
 
     template <typename SampleType>
+    static inline bool bufferIsEmpty (juce::AudioBuffer<SampleType>& buffer)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return blockIsEmpty (block);
+    }
+
+    template <typename SampleType>
     static inline bool blockIsEmptyUntil (const AudioBlock<SampleType>& block, size_t numSamples)
     {
         jassert (block.getNumSamples() >= numSamples);
@@ -149,6 +219,13 @@ namespace melatonin
             }
         }
         return true;
+    }
+
+    template <typename SampleType>
+    static inline bool bufferIsEmptyUntil (const juce::AudioBuffer<SampleType>& buffer, size_t numSamples)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return blockIsEmptyUntil (block, numSamples);
     }
 
     template <typename SampleType>
@@ -172,6 +249,13 @@ namespace melatonin
     }
 
     template <typename SampleType>
+    static inline bool bufferIsEmptyAfter (const juce::AudioBuffer<SampleType>& buffer, size_t firstZeroAt)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return blockIsEmptyAfter (block, firstZeroAt);
+    }
+
+    template <typename SampleType>
     static inline bool blockIsFilled (const AudioBlock<SampleType>& block)
     {
         for (int ch = 0; ch < (int) block.getNumChannels(); ++ch)
@@ -184,9 +268,16 @@ namespace melatonin
     }
 
     template <typename SampleType>
+    static inline bool bufferIsFilled (const juce::AudioBuffer<SampleType>& buffer)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return blockIsFilled (block);
+    }
+
+    template <typename SampleType>
     static inline bool blockIsFilledUntil (const AudioBlock<SampleType>& block, int sampleNum)
     {
-        jassert (block.getNumSamples() >= sampleNum);
+        jassert ((int) block.getNumSamples() >= sampleNum);
 
         for (int c = 0; c < (int) block.getNumChannels(); ++c)
         {
@@ -200,22 +291,36 @@ namespace melatonin
     }
 
     template <typename SampleType>
+    static inline bool bufferIsFilledUntil (const juce::AudioBuffer<SampleType>& buffer, int sampleNum)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return blockIsFilledUntil (block, sampleNum);
+    }
+
+    template <typename SampleType>
     static inline bool blockIsFilledAfter (const AudioBlock<SampleType>& block, int sampleNum)
     {
-        jassert (block.getNumSamples() >= sampleNum);
+        jassert ((int) block.getNumSamples() >= sampleNum);
 
-        if (block.getNumSamples() == sampleNum)
+        if ((int) block.getNumSamples() == sampleNum)
             return false;
 
         for (int c = 0; c < (int) block.getNumChannels(); ++c)
         {
-            for (int i = sampleNum; i < block.getNumSamples(); ++i)
+            for (int i = sampleNum; i < (int) block.getNumSamples(); ++i)
             {
                 if (i > sampleNum && ((block.getSample (c, i) == 0) && (block.getSample (c, i - 1) == 0)))
                     return false;
             }
         }
         return true;
+    }
+
+    template <typename SampleType>
+    static inline bool bufferIsFilledAfter (const juce::AudioBuffer<SampleType>& buffer, int sampleNum)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return blockIsFilledAfter (block, sampleNum);
     }
 
     template <typename SampleType>
@@ -233,8 +338,15 @@ namespace melatonin
         return true;
     }
 
+    template <typename SampleType>
+    static inline bool bufferIsFilledBetween (const juce::AudioBuffer<SampleType>& buffer, int start, int end)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return blockIsFilledBetween (block, start, end);
+    }
+
     // MONO FOR NOW
-    // This is manual frequency correlation using a known frequency
+    // Manual frequency correlation using a known frequency
     // https://github.com/juce-framework/JUCE/blob/master/modules/juce_dsp/frequency/juce_FFT_test.cpp#L59-L82
     template <typename SampleType>
     static inline float magnitudeOfFrequency (const AudioBlock<SampleType>& block, float freq, float sampleRate)
@@ -267,6 +379,13 @@ namespace melatonin
     }
 
     template <typename SampleType>
+    static inline float magnitudeOfFrequency (const juce::AudioBuffer<SampleType>& buffer, float freq, float sampleRate)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return magnitudeOfFrequency (block, freq, sampleRate);
+    }
+
+    template <typename SampleType>
     static inline AudioBlock<SampleType>& normalized (AudioBlock<SampleType>& block)
     {
         for (auto channel = 0; channel < block.getNumChannels(); ++channel)
@@ -283,18 +402,31 @@ namespace melatonin
     }
 
     template <typename SampleType>
+    static inline AudioBlock<SampleType>& normalized (juce::AudioBuffer<SampleType>& buffer)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return normalized (block);
+    }
+
+    template <typename SampleType>
     static inline AudioBlock<SampleType>& reverse (AudioBlock<SampleType>& block)
     {
         juce::HeapBlock<char> tempHeap;
         auto reversedBlock = AudioBlock<SampleType> (tempHeap, block.getNumChannels(), block.getNumSamples());
 
-        for (int channel = 0; channel < block.getNumChannels(); ++channel)
+        for (int channel = 0; channel < (int) block.getNumChannels(); ++channel)
         {
-            for (int i = 0; i < block.getNumSamples(); ++i)
-                reversedBlock.setSample (channel, i, block.getSample (channel, block.getNumSamples() - 1 - i));
+            for (int i = 0; i < (int) block.getNumSamples(); ++i)
+                reversedBlock.setSample (channel, i, block.getSample (channel, (int) block.getNumSamples() - 1 - i));
         }
         block.copyFrom (reversedBlock);
         return block;
     }
 
+    template <typename SampleType>
+    static inline AudioBlock<SampleType>& reverse (juce::AudioBuffer<SampleType>& buffer)
+    {
+        const auto block = AudioBlock<SampleType> (buffer);
+        return reverse (block);
+    }
 }

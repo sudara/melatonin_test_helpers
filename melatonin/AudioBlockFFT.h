@@ -16,10 +16,10 @@ namespace melatonin
             window.multiplyWithWindowingTable (fftData.getData(), fftSize);
             fft.performFrequencyOnlyForwardTransform (fftData.getData());
 
-            float maxValue = 0.0;
+            SampleType maxValue = 0.0;
 
             // Normalize from fftSize magnitudes down to a 0-1 magnitude range
-            for (int i = 0; i < fftSize; i++)
+            for (size_t i = 0; i < fftSize; i++)
             {
                 fftData[i] = fftData[i] / fftSize;
                 maxValue = fftData[i] > maxValue ? fftData[i] : maxValue;
@@ -30,9 +30,9 @@ namespace melatonin
             // Different tests use different amplitudes...
             if (scale)
             {
-                for (int i = 0; i < fftSize; i++)
+                for (size_t i = 0; i < fftSize; i++)
                 {
-                    fftData[i] = fftData[i] * 0.5 / maxValue; // 0.5 is our arbitrary max value for a bin
+                    fftData[i] = fftData[i] * (SampleType) 0.5 / maxValue; // 0.5 is our arbitrary max value for a bin
                 }
             }
         }
@@ -104,7 +104,7 @@ namespace melatonin
         }
 
         /* Produces an output like the following:
-         
+
         FFT bins | freq | signal
         9 | 215.332 | 0.246468
         10 | 236.865 | 0.5
