@@ -1,4 +1,4 @@
-# Melatonin AudioBlock Test Helpers
+# Melatonin Test Helpers
 
 This module contains two things
 
@@ -170,24 +170,24 @@ Prerequisites:
 Set up with a git submodule tracking the `main` branch:
 
 ```git
-git submodule add -b main https://github.com/sudara/melatonin_audio_block_test_helpers modules/melatonin_audio_block_test_helpers
-git commit -m "Added melatonin_audio_block_test_helpers submodule."
+git submodule add -b main https://github.com/sudara/melatonin_test_helpers modules/melatonin_test_helpers
+git commit -m "Added melatonin_test_helpers submodule."
 ```
 
 To update these test helpers, you can:
 ```git
-git submodule update --remote --merge modules/melatonin_audio_block_test_helpers
+git submodule update --remote --merge modules/melatonin_test_helpers
 ```
 
 If you use CMake, inform JUCE about the module in your `CMakeLists.txt`:
 ```cmake
-juce_add_module("modules/melatonin_audio_block_test_helpers")
+juce_add_module("modules/melatonin_test_helpers")
 ```
 
 And link your target against it (using `PRIVATE`, as juce recommends for modules):
 
 ```cmake
-target_link_libraries(my_target PRIVATE melatonin_audio_block_test_helpers)
+target_link_libraries(my_target PRIVATE melatonin_test_helpers)
 ```
 
 ### Include the module and use the melatonin namespace
@@ -195,11 +195,27 @@ target_link_libraries(my_target PRIVATE melatonin_audio_block_test_helpers)
 Add the following to any .cpp you'd like to use the helpers:
 
 ```cpp
-#include "melatonin_audio_block_test_helpers/melatonin_audio_block_test_helpers.h"
+# include "melatonin_test_helpers/melatonin_test_helpers.h"
 
 // make your life easier while you are at it...
 using namespace melatonin;
 
+```
+
+## Updating from melatonin_audio_block_test_helpers
+
+The repo has been renamed now that we support `AudioBuffers`. You'll want to do 2 things:
+
+1. [Update the submodule url](https://stackoverflow.com/questions/913701/how-to-change-the-remote-repository-for-a-git-submodule)
+
+```
+git submodule set-url -- modules/melatonin_audio_block_test_helpers https://github.com/sudara/melatonin_test_helpers
+```
+
+2. Rename it locally (this will update .gitmodules)
+
+```
+git mv modules/melatonin_audio_block_test_helpers modules/melatonin_test_helpers
 ```
 
 ## Caveats
