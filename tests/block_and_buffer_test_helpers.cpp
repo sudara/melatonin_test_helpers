@@ -1,0 +1,3 @@
+#if RUN_MELATONIN_TESTS
+
+#endif
