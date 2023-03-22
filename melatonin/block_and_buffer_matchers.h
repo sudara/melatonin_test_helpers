@@ -39,10 +39,12 @@ namespace Catch
             return melatonin::sparkline (value).toStdString();
         }
     };
+
 }
 
 namespace melatonin
 {
+
     struct isValidAudio : Catch::Matchers::MatcherGenericBase
     {
         template <typename SampleType>
@@ -105,7 +107,7 @@ namespace melatonin
 
     struct isFilledUntil : Catch::Matchers::MatcherGenericBase
     {
-        size_t boundary=0;
+        size_t boundary = 0;
         explicit isFilledUntil (size_t sampleNum) : boundary (sampleNum) {}
 
         template <typename SampleType>
@@ -181,7 +183,7 @@ namespace melatonin
 
     struct isEmptyAfter : Catch::Matchers::MatcherGenericBase
     {
-        size_t boundary=0;
+        size_t boundary = 0;
 
         explicit isEmptyAfter (size_t sampleNum) : boundary (sampleNum) {}
 
@@ -207,7 +209,7 @@ namespace melatonin
 
     struct isEmptyUntil : Catch::Matchers::MatcherGenericBase
     {
-        size_t boundary=0;
+        size_t boundary = 0;
         explicit isEmptyUntil (size_t sampleNum) : boundary (sampleNum) {}
 
         template <typename SampleType>
@@ -230,12 +232,15 @@ namespace melatonin
         }
     };
 
+    // supports audioblock and std::vector
     template <typename SampleType>
     struct isEqualTo : Catch::Matchers::MatcherGenericBase
     {
-        const AudioBlock<SampleType>& other;
+        juce::HeapBlock<char> otherData;
+        AudioBlock<SampleType> other = {};
+        std::vector<SampleType> otherVector = {};
         const float tolerance = 0;
-        mutable int sampleNumber = 0;
+        mutable size_t sampleNumber = 0;
         mutable double blockValue = 0;
         mutable double otherValue = 0;
         mutable std::string descriptionOfOther = "";
@@ -243,8 +248,21 @@ namespace melatonin
         explicit isEqualTo (const AudioBlock<SampleType>& o, float t = std::numeric_limits<float>::epsilon() * 100)
             : other (o), tolerance (t) {}
 
+        // allow us to easily compare vector to vector
+        // needed because Catch::Matchers::Approx<float> for std::vector is broken around 0.0
+        // convenient for test writing
+        explicit isEqualTo (const std::vector<SampleType>& vector, float t = std::numeric_limits<float>::epsilon() * 100)
+            : other(), otherVector (vector), tolerance (t)
+        {
+            // also populate the other block in case we want to compare incoming vector against blocks
+            other = AudioBlock<SampleType> (otherData, 1, otherVector.size());
+            for (int i = 0; i < (int) otherVector.size(); ++i)
+                other.setSample (0, i, otherVector[(size_t) i]);
+        }
+
         [[nodiscard]] bool match (AudioBlock<SampleType>& block) const
         {
+            jassert (other.getNumSamples() == block.getNumSamples());
             for (int channel = 0; channel < (int) block.getNumChannels(); ++channel)
             {
                 for (int i = 0; i < (int) block.getNumSamples(); ++i)
@@ -253,7 +271,7 @@ namespace melatonin
                     // if you are doing things like adding deltas 100 times vs. multiplying a delta by 1000, you'll need more
                     if (!juce::isWithin (other.getSample (channel, i), block.getSample (channel, i), tolerance))
                     {
-                        sampleNumber = i;
+                        sampleNumber = (size_t) i;
                         blockValue = block.getSample (channel, i);
                         otherValue = other.getSample (channel, i);
                         return false;
@@ -266,6 +284,25 @@ namespace melatonin
         [[nodiscard]] bool match (juce::AudioBuffer<SampleType>& block) const
         {
             return match (AudioBlock<SampleType> (block));
+        }
+
+        [[nodiscard]] bool match (std::vector<SampleType>& vector) const
+        {
+            if (vector.size() != otherVector.size())
+                jassertfalse;
+
+            for (auto& value : vector)
+            {
+                if (!juce::isWithin (otherVector[sampleNumber], value, tolerance))
+                {
+                    blockValue = value;
+                    otherValue = otherVector[sampleNumber];
+                    descriptionOfOther = Catch::Detail::stringify (otherVector);
+                    return false;
+                }
+                sampleNumber++;
+            }
+            return true;
         }
 
         std::string describe() const override

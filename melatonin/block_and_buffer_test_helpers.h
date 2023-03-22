@@ -89,6 +89,22 @@ namespace melatonin
     }
 
     template <typename SampleType>
+    static inline SampleType minMagnitude (const AudioBlock<SampleType>& block)
+    {
+        float min = 0.0;
+        for (size_t c = 0; c < block.getNumChannels(); ++c)
+        {
+            auto channel_min = juce::FloatVectorOperations::findMinimum (block.getChannelPointer (c), block.getNumSamples());
+            auto channel_abs_max = abs (juce::FloatVectorOperations::findMaximum (block.getChannelPointer (c), block.getNumSamples()));
+            if (channel_min < min)
+                min = channel_min;
+            else if (channel_abs_max < min)
+                min = channel_abs_max;
+        }
+        return min;
+    }
+
+    template <typename SampleType>
     static inline SampleType maxMagnitude (juce::AudioBuffer<SampleType>& buffer)
     {
         const auto block = AudioBlock<SampleType> (buffer);
