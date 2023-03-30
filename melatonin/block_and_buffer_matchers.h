@@ -232,6 +232,28 @@ namespace melatonin
         }
     };
 
+    struct hasRMS : Catch::Matchers::MatcherGenericBase
+    {
+        double expectedRMS = 0;
+        mutable double actualRMS = 0;
+        double tolerance = 0;
+        explicit hasRMS (double r, double t = 0.0001) : expectedRMS (r), tolerance (t) {}
+
+        template <typename SampleType>
+        [[nodiscard]] bool match (const AudioBlock<SampleType>& block) const
+        {
+            actualRMS = rms (block);
+            return std::abs (actualRMS - expectedRMS) < tolerance;
+        }
+
+        [[nodiscard]] std::string describe() const override
+        {
+            std::ostringstream ss;
+            ss << "Block RMS of " << actualRMS << " was expected to be within " << tolerance << " of " << expectedRMS;
+            return ss.str();
+        }
+    };
+
     // supports audioblock and std::vector
     template <typename SampleType>
     struct isEqualTo : Catch::Matchers::MatcherGenericBase

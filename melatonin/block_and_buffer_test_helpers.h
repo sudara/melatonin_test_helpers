@@ -147,7 +147,7 @@ namespace melatonin
     }
 
     template <typename SampleType>
-    static inline AudioBlock<SampleType>& fillBlockWithFunction (AudioBlock<SampleType>& block, const std::function<float (float)>& function, float frequency, float sampleRate, float gain = 1.0f)
+    static inline AudioBlock<SampleType>& fillBlockWithFunction (AudioBlock<SampleType>& block, const std::function<float (float)>& function, float frequency, float sampleRate, float gain = 1.0f, bool accumulate = false)
     {
         auto angleDelta = juce::MathConstants<float>::twoPi * frequency / sampleRate;
         for (size_t c = 0; c < block.getNumChannels(); ++c)
@@ -155,7 +155,8 @@ namespace melatonin
             auto currentAngle = 0.0f;
             for (size_t i = 0; i < block.getNumSamples(); ++i)
             {
-                block.setSample ((int) c, (int) i, gain * function (currentAngle));
+                auto sampleValue = gain * function (currentAngle);
+                block.setSample ((int) c, (int) i, accumulate ? block.getSample(c, i) + gain + sampleValue : sampleValue);
                 currentAngle += angleDelta;
                 if (currentAngle >= juce::MathConstants<float>::pi)
                     currentAngle -= juce::MathConstants<float>::twoPi;
@@ -177,6 +178,13 @@ namespace melatonin
     {
         return fillBlockWithFunction (
             block, [] (float angle) { return juce::dsp::FastMathApproximations::sin (angle); }, frequency, sampleRate, gain);
+    }
+
+    template <typename SampleType>
+    static inline AudioBlock<SampleType>& addSineToBlock (AudioBlock<SampleType>& block, float frequency, float sampleRate, float gain = 1.0f)
+    {
+        return fillBlockWithFunction (
+            block, [] (float angle) { return juce::dsp::FastMathApproximations::sin (angle); }, frequency, sampleRate, gain, true);
     }
 
     template <typename SampleType>
