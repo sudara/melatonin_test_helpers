@@ -6,8 +6,9 @@ namespace melatonin
     {
         float min;
         float max;
+        float margin;
 
-        isBetween (float m, float x) : min (m), max (x) {}
+        isBetween (float m, float x, float g = std::numeric_limits<float>::epsilon() * 100) : min (m), max (x), margin (g) {}
 
         template <typename SampleType>
         [[nodiscard]] bool match (std::vector<SampleType> array) const
@@ -15,7 +16,18 @@ namespace melatonin
             jassert (min < max);
 
             for (auto& item : array)
-                if (item < min - std::numeric_limits<SampleType>::epsilon() * 100 || item > max + std::numeric_limits<SampleType>::epsilon() * 100)
+                if (item < (min - margin) || item > (max + margin))
+                    return false;
+            return true;
+        }
+
+        template <typename SampleType>
+        [[nodiscard]] bool match (juce::dsp::AudioBlock<SampleType>& block) const
+        {
+            jassert (min < max);
+
+            for (size_t i = 0; i < block.getNumSamples(); ++i)
+                if (block.getSample (0, i) < min - margin || block.getSample (0, i) > max + margin)
                     return false;
             return true;
         }
