@@ -156,7 +156,7 @@ namespace melatonin
             for (size_t i = 0; i < block.getNumSamples(); ++i)
             {
                 auto sampleValue = gain * function (currentAngle);
-                block.setSample ((int) c, (int) i, accumulate ? block.getSample(c, i) + gain + sampleValue : sampleValue);
+                block.setSample ((int) c, (int) i, accumulate ? block.getSample (c, i) + gain + sampleValue : sampleValue);
                 currentAngle += angleDelta;
                 if (currentAngle >= juce::MathConstants<float>::pi)
                     currentAngle -= juce::MathConstants<float>::twoPi;
@@ -453,4 +453,74 @@ namespace melatonin
         const auto block = AudioBlock<SampleType> (buffer);
         return reverse (block);
     }
+
+    template <typename SampleType>
+    void printHistogram (AudioBlock<SampleType>& block)
+    {
+        // Calculate the range of the samples
+        float rangeStart = juce::FloatVectorOperations::findMinimum (block.getChannelPointer (0), block.getNumSamples());
+        double rangeEnd = juce::FloatVectorOperations::findMaximum (block.getChannelPointer (0), block.getNumSamples());
+
+        // Calculate the histogram of the samples
+        const size_t numBins = 10; // Number of bins for histogram
+        std::vector<size_t> histogram (numBins, 0);
+        const double binSize = (rangeEnd - rangeStart) / numBins;
+
+        for (auto i = 0; i < block.getNumSamples(); ++i)
+        {
+            size_t binIndex = static_cast<size_t> ((block.getSample (0, i) - rangeStart) / binSize);
+            histogram[binIndex]++;
+        }
+
+        // Print the histogram
+        for (auto i = 0; i < numBins; ++i)
+        {
+            std::cout << "[" << rangeStart + i * binSize << ", " << rangeStart + (i + 1) * binSize << "): ";
+            for (auto j = 0; j < histogram[i]; ++j)
+                std::cout << "|";
+            std::cout << std::endl;
+        }
+    }
+
+    template <typename SampleType>
+    bool isUniformlyDistributed (AudioBlock<SampleType>& block)
+    {
+        const double epsilon = 0.3; // lol, this is pretty accepting...
+
+        // Calculate the range of the samples
+        float rangeStart = juce::FloatVectorOperations::findMinimum (block.getChannelPointer (0), block.getNumSamples());
+        double rangeEnd = juce::FloatVectorOperations::findMaximum (block.getChannelPointer (0), block.getNumSamples());
+
+        // Calculate the histogram of the samples
+        const size_t numBins = 10; // Number of bins for histogram
+        std::vector<size_t> histogram (numBins, 0);
+        const double binSize = (rangeEnd - rangeStart) / numBins;
+
+        for (auto i = 0; i < block.getNumSamples(); ++i)
+        {
+            size_t binIndex = static_cast<size_t> ((block.getSample (0, i) - rangeStart) / binSize);
+            histogram[binIndex]++;
+        }
+
+        // Check if the histogram values are relatively equal
+        const double expectedCount = block.getNumSamples() / static_cast<double> (numBins);
+        for (const size_t& count : histogram)
+        {
+            if (std::abs (count - expectedCount) > epsilon * expectedCount)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    template <typename SampleType>
+    float average (AudioBlock<SampleType>& block)
+    {
+        float sum = 0;
+        for (int i = 0; i < block.getNumSamples(); ++i)
+            sum += block.getSample (0, i);
+        return sum / (float) block.getNumSamples();
+    }
+
 }
