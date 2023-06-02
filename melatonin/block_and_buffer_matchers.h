@@ -310,6 +310,8 @@ namespace melatonin
 
         [[nodiscard]] bool match (std::vector<SampleType>& vector) const
         {
+
+            // hi, you have to write your expectation for an exact number of elements!
             if (vector.size() != otherVector.size())
                 jassertfalse;
 
@@ -335,7 +337,7 @@ namespace melatonin
             std::ostringstream ss;
             ss << "is equal to \n"
                << descriptionOfOther << "\n";
-            ss << "Sample " << sampleNumber << " expected to be " << otherValue << " but was " << blockValue << " a difference of " << otherValue - blockValue;
+            ss << "Index " << sampleNumber << " expected to be " << otherValue << " but was " << blockValue << " a difference of " << otherValue - blockValue;
             return ss.str();
         }
     };
