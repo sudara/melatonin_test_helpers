@@ -310,7 +310,6 @@ namespace melatonin
 
         [[nodiscard]] bool match (std::vector<SampleType>& vector) const
         {
-
             // hi, you have to write your expectation for an exact number of elements!
             if (vector.size() != otherVector.size())
                 jassertfalse;

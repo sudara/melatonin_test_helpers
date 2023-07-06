@@ -11,6 +11,16 @@ namespace melatonin
         isBetween (float m, float x, float g = std::numeric_limits<float>::epsilon() * 100) : min (m), max (x), margin (g) {}
 
         template <typename SampleType>
+        [[nodiscard]] bool match (SampleType item) const
+        {
+            jassert (min < max);
+
+            if (item < (min - margin) || item > (max + margin))
+                return false;
+            return true;
+        }
+
+        template <typename SampleType>
         [[nodiscard]] bool match (std::vector<SampleType> array) const
         {
             jassert (min < max);
