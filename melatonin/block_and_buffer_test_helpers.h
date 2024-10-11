@@ -112,6 +112,12 @@ namespace melatonin
     }
 
     template <typename SampleType>
+    static inline bool betweenMagnitudes(const AudioBlock<SampleType>& block, SampleType min, SampleType max)
+    {
+        return minMagnitude (block) >= min && maxMagnitude (block) <= max;
+    }
+
+    template <typename SampleType>
     static inline SampleType rms (const AudioBlock<SampleType>& block)
     {
         float sum = 0.0;

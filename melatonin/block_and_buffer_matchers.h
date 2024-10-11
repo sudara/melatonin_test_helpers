@@ -1,4 +1,5 @@
 #pragma once
+#include "melatonin_audio_sparklines/melatonin_audio_sparklines.h"
 
 // This teaches Catch how to convert an AudioBlock to a string
 // This allows us to print out detail about the AudioBlock on matcher failure
@@ -258,44 +259,50 @@ namespace melatonin
     template <typename SampleType>
     struct isEqualTo : Catch::Matchers::MatcherGenericBase
     {
-        juce::HeapBlock<char> otherData;
-        AudioBlock<SampleType> other = {};
-        std::vector<SampleType> otherVector = {};
+        juce::HeapBlock<char> expectedData;
+        AudioBlock<SampleType> expected = {};
+        std::vector<SampleType> expectedVector = {};
+        mutable std::vector<float> testedVector = {};
         const float tolerance = 0;
         mutable size_t sampleNumber = 0;
         mutable double blockValue = 0;
-        mutable double otherValue = 0;
+        mutable double expectedValue = 0;
         mutable std::string descriptionOfOther = "";
 
-        explicit isEqualTo (const AudioBlock<SampleType>& o, float t = std::numeric_limits<float>::epsilon() * 100)
-            : other (o), tolerance (t) {}
+        explicit isEqualTo (const AudioBlock<SampleType>& e, float t = std::numeric_limits<float>::epsilon() * 100)
+            : expected (e), tolerance (t) {}
 
         // allow us to easily compare vector to vector
         // needed because Catch::Matchers::Approx<float> for std::vector is broken around 0.0
         // convenient for test writing
         explicit isEqualTo (const std::vector<SampleType>& vector, float t = std::numeric_limits<float>::epsilon() * 100)
-            : other(), otherVector (vector), tolerance (t)
+            : expected(), expectedVector (vector), tolerance (t)
         {
-            // also populate the other block in case we want to compare incoming vector against blocks
-            other = AudioBlock<SampleType> (otherData, 1, otherVector.size());
-            for (int i = 0; i < (int) otherVector.size(); ++i)
-                other.setSample (0, i, otherVector[(size_t) i]);
+            // also populate the expected block in case we want to compare incoming vector against blocks
+            expected = AudioBlock<SampleType> (expectedData, 1, expectedVector.size());
+            for (int i = 0; i < (int) expectedVector.size(); ++i)
+                expected.setSample (0, i, expectedVector[(size_t) i]);
         }
 
         [[nodiscard]] bool match (AudioBlock<SampleType>& block) const
         {
-            jassert (other.getNumSamples() == block.getNumSamples());
+            jassert (expected.getNumSamples() == block.getNumSamples());
             for (int channel = 0; channel < (int) block.getNumChannels(); ++channel)
             {
+                // TODO: clean this up!
+                for (int i = 0; i < (int) block.getNumSamples(); ++i)
+                {
+                    testedVector.push_back (block.getSample (channel, i));
+                }
                 for (int i = 0; i < (int) block.getNumSamples(); ++i)
                 {
                     // juce::approximatelyEqual was not quite tolerant enough for my needs
                     // if you are doing things like adding deltas 100 times vs. multiplying a delta by 1000, you'll need more
-                    if (!juce::isWithin (other.getSample (channel, i), block.getSample (channel, i), tolerance))
+                    if (!juce::isWithin (expected.getSample (channel, i), block.getSample (channel, i), tolerance))
                     {
                         sampleNumber = (size_t) i;
                         blockValue = block.getSample (channel, i);
-                        otherValue = other.getSample (channel, i);
+                        expectedValue = expected.getSample (channel, i);
                         return false;
                     }
                 }
@@ -303,24 +310,25 @@ namespace melatonin
             return true;
         }
 
-        [[nodiscard]] bool match (juce::AudioBuffer<SampleType>& block) const
+        [[nodiscard]] bool
+            match (juce::AudioBuffer<SampleType>& block) const
         {
             return match (AudioBlock<SampleType> (block));
         }
 
-        [[nodiscard]] bool match (std::vector<SampleType>& vector) const
+        [[nodiscard]] bool match (const std::vector<SampleType>& vector) const
         {
-            // hi, you have to write your expectation for an exact number of elements!
-            if (vector.size() != otherVector.size())
+            // hi, you have to write your expectation for the exact number of elements!
+            if (vector.size() != expectedVector.size())
                 jassertfalse;
+
+            testedVector = vector;
 
             for (auto& value : vector)
             {
-                if (!juce::isWithin (otherVector[sampleNumber], value, tolerance))
+                if (!juce::isWithin (expectedVector[sampleNumber], value, tolerance))
                 {
-                    blockValue = value;
-                    otherValue = otherVector[sampleNumber];
-                    descriptionOfOther = Catch::Detail::stringify (otherVector);
+                    expectedValue = expectedVector[sampleNumber];
                     return false;
                 }
                 sampleNumber++;
@@ -331,12 +339,12 @@ namespace melatonin
         std::string describe() const override
         {
             if (descriptionOfOther.empty())
-                descriptionOfOther = sparkline (other).toStdString();
+                descriptionOfOther = sparkline (expected).toStdString();
 
             std::ostringstream ss;
             ss << "is equal to \n"
                << descriptionOfOther << "\n";
-            ss << "Index " << sampleNumber << " expected to be " << otherValue << " but was " << blockValue << " a difference of " << otherValue - blockValue;
+            ss << "Expected: " << melatonin::vectorToString (expectedVector) << "\nActual:   " << melatonin::vectorToString (testedVector);
             return ss.str();
         }
     };
