@@ -36,7 +36,7 @@ namespace melatonin
         {
             jassert (min < max);
 
-            for (size_t i = 0; i < block.getNumSamples(); ++i)
+            for (int i = 0; i < (int) block.getNumSamples(); ++i)
                 if (block.getSample (0, i) < min - margin || block.getSample (0, i) > max + margin)
                     return false;
             return true;
