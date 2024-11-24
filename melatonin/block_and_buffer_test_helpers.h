@@ -504,7 +504,7 @@ namespace melatonin
 
         for (auto i = 0; i < block.getNumSamples(); ++i)
         {
-            size_t binIndex = static_cast<size_t> ((block.getSample (0, i) - rangeStart) / binSize);
+            auto binIndex = juce::jlimit(size_t(0), numBins - 1, static_cast<size_t> ((block.getSample (0, i) - rangeStart) / binSize));
             histogram[binIndex]++;
         }
 
