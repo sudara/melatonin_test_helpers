@@ -3,9 +3,9 @@
 namespace melatonin
 {
     // You'll want to use this anytime you call someParam->setValueNotifyingHost (1.0f);
-    static inline void waitForParameterChange()
+    static inline void waitForParameterChange(int ms=1)
     {
-        juce::MessageManager::getInstance()->runDispatchLoopUntil (1);
+        juce::MessageManager::getInstance()->runDispatchLoopUntil (ms);
         juce::Timer::callPendingTimersSynchronously();
     }
 
