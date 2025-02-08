@@ -153,6 +153,17 @@ namespace melatonin
     }
 
     template <typename SampleType>
+    static inline void fillBlock(AudioBlock<SampleType>& block, std::vector<SampleType>&& values)
+    {
+        jassert (block.getNumChannels() == 1);
+        jassert (block.getNumSamples() == values.size());
+        for (size_t i = 0; i < block.getNumSamples(); ++i)
+        {
+            block.setSample (0, i, values[i]);
+        }
+    }
+
+    template <typename SampleType>
     static inline AudioBlock<SampleType>& fillBlockWithFunction (AudioBlock<SampleType>& block, const std::function<float (float)>& function, float frequency, float sampleRate, float gain = 1.0f, bool accumulate = false)
     {
         auto angleDelta = juce::MathConstants<float>::twoPi * frequency / sampleRate;
