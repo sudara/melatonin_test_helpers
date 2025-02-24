@@ -173,7 +173,7 @@ namespace melatonin
             for (int i = 0; i < (int) block.getNumSamples(); ++i)
             {
                 auto sampleValue = gain * function (currentAngle);
-                block.setSample (c, i, accumulate ? block.getSample (c, i) + gain + sampleValue : sampleValue);
+                block.setSample (c, i, accumulate ? block.getSample (c, i) + sampleValue : sampleValue);
                 currentAngle += angleDelta;
                 if (currentAngle >= juce::MathConstants<float>::pi)
                     currentAngle -= juce::MathConstants<float>::twoPi;
