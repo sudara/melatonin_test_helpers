@@ -341,10 +341,11 @@ namespace melatonin
             if (descriptionOfOther.empty())
                 descriptionOfOther = sparkline (expected).toStdString();
 
+            auto expectedString = expectedVector.empty() ? blockToString(expected) : vectorToString (expectedVector);
             std::ostringstream ss;
             ss << "is equal to \n"
                << descriptionOfOther << "\n";
-            ss << "Expected: " << melatonin::vectorToString (expectedVector) << "\nActual:   " << melatonin::vectorToString (testedVector);
+            ss << "Expected: " << expectedString << "\nActual:   " << melatonin::vectorToString (testedVector);
             return ss.str();
         }
     };
