@@ -91,7 +91,7 @@ namespace melatonin
     template <typename SampleType>
     static inline SampleType minMagnitude (const AudioBlock<SampleType>& block)
     {
-        float min = 0.0;
+        float min = 1e100f; // a very large number
         for (size_t c = 0; c < block.getNumChannels(); ++c)
         {
             auto channel_min = juce::FloatVectorOperations::findMinimum (block.getChannelPointer (c), block.getNumSamples());
