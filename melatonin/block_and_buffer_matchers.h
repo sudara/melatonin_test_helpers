@@ -263,19 +263,19 @@ namespace melatonin
         AudioBlock<SampleType> expected = {};
         std::vector<SampleType> expectedVector = {};
         mutable std::vector<float> testedVector = {};
-        const float tolerance = 0;
+        const SampleType tolerance = 0;
         mutable size_t sampleNumber = 0;
         mutable double blockValue = 0;
         mutable double expectedValue = 0;
         mutable std::string descriptionOfOther = "";
 
-        explicit isEqualTo (const AudioBlock<SampleType>& e, float t = std::numeric_limits<float>::epsilon() * 100)
+        explicit isEqualTo (const AudioBlock<SampleType>& e, SampleType t = std::numeric_limits<SampleType>::epsilon() * 100)
             : expected (e), tolerance (t) {}
 
         // allow us to easily compare vector to vector
         // needed because Catch::Matchers::Approx<float> for std::vector is broken around 0.0
         // convenient for test writing
-        explicit isEqualTo (const std::vector<SampleType>& vector, float t = std::numeric_limits<float>::epsilon() * 100)
+        explicit isEqualTo (const std::vector<SampleType>& vector, SampleType t = std::numeric_limits<SampleType>::epsilon() * 100)
             : expected(), expectedVector (vector), tolerance (t)
         {
             // also populate the expected block in case we want to compare incoming vector against blocks
