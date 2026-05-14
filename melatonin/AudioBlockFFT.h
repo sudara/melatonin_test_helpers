@@ -24,7 +24,9 @@ namespace melatonin
                 fftData[i] = fftData[i] / fftSize;
                 maxValue = fftData[i] > maxValue ? fftData[i] : maxValue;
                 if (debug)
+                {
                     DBG (fftData[i]);
+                }
             }
 
             // Different tests use different amplitudes...
