@@ -26,4 +26,7 @@ END_JUCE_MODULE_DECLARATION
 #include "melatonin/block_and_buffer_matchers.h"
 #include "melatonin/vector_matchers.h"
 #include "melatonin/mock_playheads.h"
+
+#if JUCE_MODAL_LOOPS_PERMITTED
 #include "melatonin/parameter_test_helpers.h"
+#endif
